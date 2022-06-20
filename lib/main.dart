@@ -19,6 +19,7 @@ void main() {
       routes: {
         "/login/": (context) => const LoginView(),
         "/register/": (context) => const RegisterView(),
+        "/notes/": (context) => const NoteView(),
       },
     ),
   );
@@ -65,12 +66,13 @@ class NoteView extends StatelessWidget {
         actions: [
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
+              final navigator = Navigator.of(context);
               switch (value) {
                 case MenuAction.logOut:
                   final shouldLogOut = await showLogOutDialog(context);
                   if (shouldLogOut) {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
+                    navigator.pushNamedAndRemoveUntil(
                       "/login/",
                       (_) => false,
                     );
