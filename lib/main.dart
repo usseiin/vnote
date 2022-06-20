@@ -5,6 +5,7 @@ import 'package:vnote_app/views/login_view.dart';
 import 'package:vnote_app/views/register_view.dart';
 import 'package:vnote_app/views/verify_email_view.dart';
 import 'firebase_options.dart';
+import 'dart:developer' as devtools show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,15 +63,61 @@ class NoteView extends StatelessWidget {
       appBar: AppBar(
         title: const Text("NotesView"),
         actions: [
-          IconButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logOut:
+                  final shouldLogOut = await showLogOutDialog(context);
+                  if (shouldLogOut) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      "/login/",
+                      (_) => false,
+                    );
+                  }
+                  devtools.log(
+                    shouldLogOut.toString(),
+                  );
+                  break;
+              }
             },
-            icon: const Icon(Icons.menu),
+            itemBuilder: (context) {
+              return [
+                const PopupMenuItem(
+                  value: MenuAction.logOut,
+                  child: Text("Log out"),
+                ),
+              ];
+            },
           ),
         ],
       ),
       body: const Text("Hello World"),
     );
   }
+}
+
+enum MenuAction { logOut }
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Sign out"),
+          content: const Text("Are you sure you want to sign out"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text("Cancel")),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Log out'))
+          ],
+        );
+      }).then((value) => value ?? false);
 }
