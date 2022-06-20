@@ -74,7 +74,7 @@ class NoteView extends StatelessWidget {
                   if (shouldLogOut) {
                     await FirebaseAuth.instance.signOut();
                     navigator.pushNamedAndRemoveUntil(
-                      "/login/",
+                      loginRoute,
                       (_) => false,
                     );
                   }
