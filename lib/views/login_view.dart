@@ -72,6 +72,7 @@ class _LoginViewState extends State<LoginView> {
                     notesRoute,
                     (route) => false,
                   );
+                } else {
                   navigator.pushNamed(verifyEmailRoute);
                 }
               } on UserNotFoundAuthExcepton {
