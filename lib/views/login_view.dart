@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vnote_app/constants/routes.dart';
+import 'package:vnote_app/services/auth/auth_exceptions.dart';
+import 'package:vnote_app/services/auth/auth_services.dart';
 import '../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -61,44 +62,37 @@ class _LoginViewState extends State<LoginView> {
               final navigator = Navigator.of(context);
 
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await AuthService.firebase().login(
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                if (user!.emailVerified) {
+                final user = AuthService.firebase().currentUser;
+                if (user!.isEmailVerified) {
                   navigator.pushNamedAndRemoveUntil(
                     notesRoute,
                     (route) => false,
                   );
                   navigator.pushNamed(verifyEmailRoute);
                 }
-              } on FirebaseAuthException catch (e) {
-                if (e.code == "user-not-found") {
-                  await showErrorDialog(
-                    context,
-                    "User not found",
-                  );
-                } else if (e.code == "wrong-password") {
-                  await showErrorDialog(
-                    context,
-                    "Wrong password",
-                  );
-                } else if (e.code == "network-request-failed") {
-                  await showErrorDialog(
-                    context,
-                    "Network request failed",
-                  );
-                } else {
-                  await showErrorDialog(
-                    context,
-                    "Error: ${e.code}",
-                  );
-                }
-              } catch (e) {
+              } on UserNotFoundAuthExcepton {
                 await showErrorDialog(
                   context,
-                  "Error: ${e.toString()}",
+                  "User not found",
+                );
+              } on WrongPasswordAuthExcepton {
+                await showErrorDialog(
+                  context,
+                  "Wrong password",
+                );
+              } on NetworkRequestFaildAuthExcepton {
+                await showErrorDialog(
+                  context,
+                  "Network request failed",
+                );
+              } on GenericAuthExcepton {
+                await showErrorDialog(
+                  context,
+                  "Authentication Error",
                 );
               }
             },
