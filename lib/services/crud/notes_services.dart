@@ -6,12 +6,12 @@ import 'package:sqflite/sqflite.dart'; //use the sqlite database
 import 'package:path_provider/path_provider.dart';
 import 'package:vnote_app/services/crud/crud_exceptions.dart'; // get application directory
 
-class NoteService {
+class NotesService {
   Database? _db;
 
-  static final NoteService _shared = NoteService._sharedInstance();
-  NoteService._sharedInstance();
-  factory NoteService() => _shared;
+  static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance();
+  factory NotesService() => _shared;
 
   Future<void> _ensureDbIsOpen() async {
     try {
