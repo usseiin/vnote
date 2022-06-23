@@ -2,9 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:vnote_app/constants/routes.dart';
 import 'package:vnote_app/enum/menu_actions.dart';
 import 'package:vnote_app/services/auth/auth_services.dart';
+import 'package:vnote_app/services/crud/notes_services.dart';
 
-class NoteView extends StatelessWidget {
+class NoteView extends StatefulWidget {
   const NoteView({Key? key}) : super(key: key);
+
+  @override
+  State<NoteView> createState() => _NoteViewState();
+}
+
+class _NoteViewState extends State<NoteView> {
+  late final NoteService _notesService;
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+  @override
+  void initState() {
+    super.initState();
+    _notesService = NoteService();
+    _notesService.open();
+  }
+
+  @override
+  void dispose() {
+    _notesService.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +47,6 @@ class NoteView extends StatelessWidget {
                       (_) => false,
                     );
                   }
-
                   break;
               }
             },
@@ -40,7 +61,17 @@ class NoteView extends StatelessWidget {
           ),
         ],
       ),
-      body: const Text("Hello World"),
+      body: FutureBuilder(
+        future: _notesService.getOrCreateUser(email: userEmail),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return const Text("All Note text here");
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }

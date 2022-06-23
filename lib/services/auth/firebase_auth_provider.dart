@@ -103,7 +103,8 @@ class FirebaseAuthProvider implements AuthProvider {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await user.sendEmailVerification();
+    } else {
+      throw UserNotLoginAuthExcepton();
     }
-    throw UserNotLoginAuthExcepton();
   }
 }
