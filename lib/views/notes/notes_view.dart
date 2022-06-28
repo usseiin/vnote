@@ -3,7 +3,6 @@ import 'package:vnote_app/constants/routes.dart';
 import 'package:vnote_app/enum/menu_actions.dart';
 import 'package:vnote_app/services/auth/auth_services.dart';
 import 'package:vnote_app/services/crud/notes_services.dart';
-import 'package:vnote_app/utilities/dialogs/delete_dialog.dart';
 import 'package:vnote_app/utilities/dialogs/logout_dialog.dart';
 import 'package:vnote_app/views/notes/note_list_view.dart';
 
@@ -33,7 +32,7 @@ class _NoteViewState extends State<NoteView> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, newNoteRoute);
+              Navigator.pushNamed(context, createOrUpdateNoteRoute);
             },
             icon: const Icon(Icons.add),
           ),
@@ -81,6 +80,12 @@ class _NoteViewState extends State<NoteView> {
                           notes: allNotes,
                           onDeleteNote: (note) async {
                             await _notesService.deleteNote(id: note.id);
+                          },
+                          onTap: (note) {
+                            Navigator.of(context).pushNamed(
+                              createOrUpdateNoteRoute,
+                              arguments: note,
+                            );
                           },
                         );
                       }
