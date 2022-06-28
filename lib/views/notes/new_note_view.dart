@@ -11,14 +11,14 @@ class NewNoteView extends StatefulWidget {
 
 class _NewNoteViewState extends State<NewNoteView> {
   DatabaseNote? _note;
-  late final TextEditingController _textController;
   late final NotesService _notesService;
+  late final TextEditingController _textController;
 
   @override
   void initState() {
-    super.initState();
     _notesService = NotesService();
     _textController = TextEditingController();
+    super.initState();
   }
 
   void _textControllerListener() async {
@@ -34,12 +34,8 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   void _setupTextEditingControllerListener() {
-    _textController.removeListener(() {
-      _textControllerListener();
-    });
-    _textController.addListener(() {
-      _textControllerListener();
-    });
+    _textController.removeListener(_textControllerListener);
+    _textController.addListener(_textControllerListener);
   }
 
   Future<DatabaseNote> createNewNote() async {
@@ -93,12 +89,13 @@ class _NewNoteViewState extends State<NewNoteView> {
               _note = snapshot.data as DatabaseNote;
               _setupTextEditingControllerListener();
               return TextField(
-                  controller: _textController,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    hintText: "Start typing your note....",
-                  ));
+                controller: _textController,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                  hintText: "Start typing your note....",
+                ),
+              );
             default:
               return const CircularProgressIndicator();
           }

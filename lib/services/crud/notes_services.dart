@@ -9,9 +9,20 @@ import 'package:vnote_app/services/crud/crud_exceptions.dart'; // get applicatio
 class NotesService {
   Database? _db;
 
-  static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
-  factory NotesService() => _shared;
+  // Singleton... i.e there can only be one instance of NoteService Database.
+  NotesService._() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
+  static final NotesService _instance = NotesService._();
+  factory NotesService() => _instance;
+
+  // static final NotesService _shared = NotesService._sharedInstance();
+  // NotesService._sharedInstance();
+  // factory NotesService() => _shared;
 
   Future<void> _ensureDbIsOpen() async {
     try {
@@ -36,8 +47,7 @@ class NotesService {
 
   List<DatabaseNote> _notes = [];
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
@@ -54,10 +64,14 @@ class NotesService {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     await getNote(id: note.id);
-    final updateCount = db.update(noteTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updateCount = db.update(
+        noteTable,
+        {
+          textColumn: text,
+          isSyncedWithCloudColumn: 0,
+        },
+        where: "id = ?",
+        whereArgs: [note.id]);
     if (updateCount == 0) {
       throw CouldNotUpdateNote();
     } else {
@@ -213,7 +227,7 @@ class NotesService {
 
   Future<void> open() async {
     if (_db != null) {
-      throw DatabaseAlreadyOpenException();
+      // throw DatabaseAlreadyOpenException();
     }
     try {
       final docsPath = await getApplicationDocumentsDirectory();
@@ -288,7 +302,7 @@ class DatabaseNote {
 
   @override
   String toString() =>
-      "Note, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud";
+      "Note, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, text = $text";
 
   @override
   bool operator ==(covariant DatabaseNote other) => id == other.id;
