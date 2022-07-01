@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
+import 'package:share_plus/share_plus.dart';
 import 'package:vnote_app/services/auth/auth_services.dart';
 import 'package:vnote_app/services/cloud/firebase_cloud-storage.dart';
+import 'package:vnote_app/utilities/dialogs/cannot_share_empty_note.dart';
 import 'package:vnote_app/utilities/generics/get-arguments.dart';
 import 'package:vnote_app/services/cloud/cloud_note.dart';
 
@@ -89,6 +91,19 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("New Note"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final text = _textController.text;
+              if (text.isEmpty || _note == null) {
+                await showCannotShareEmptyNoteDialog(context);
+              } else {
+                Share.share(text);
+              }
+            },
+            icon: const Icon(Icons.share),
+          ),
+        ],
       ),
       body: FutureBuilder(
         future: createOrGetExistingNote(context),
