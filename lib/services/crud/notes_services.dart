@@ -4,10 +4,13 @@ import "package:path/path.dart"
     show join; //join the directory with name of database
 import 'package:sqflite/sqflite.dart'; //use the sqlite database
 import 'package:path_provider/path_provider.dart';
+import 'package:vnote_app/extension/list/filter.dart';
 import 'package:vnote_app/services/crud/crud_exceptions.dart'; // get application directory
 
 class NotesService {
   Database? _db;
+
+  DatabaseUser? _user;
 
   // Singleton... i.e there can only be one instance of NoteService Database.
   NotesService._() {
@@ -32,13 +35,20 @@ class NotesService {
     }
   }
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser(
+      {required String email, bool setAsCurrentUser = true}) async {
     await _ensureDbIsOpen();
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFoundUser {
       final user = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } catch (e) {
       rethrow;
@@ -49,7 +59,17 @@ class NotesService {
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter(
+        (note) {
+          final currentUser = _user;
+          if (currentUser != null) {
+            return note.userId == currentUser.id;
+          } else {
+            throw UserShouldBeSetBeforeReadingAllNote();
+          }
+        },
+      );
 
   Future<void> _cacheNote() async {
     final allNotes = await getAllNotes();

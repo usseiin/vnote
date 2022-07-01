@@ -12,7 +12,7 @@ class NoteListView extends StatelessWidget {
       {Key? key,
       required this.notes,
       required this.onDeleteNote,
-      required this.onTap})
+      required this.onTap,})
       : super(key: key);
 
   @override
