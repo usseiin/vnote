@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vnote_app/constants/routes.dart';
 import 'package:vnote_app/enum/menu_actions.dart';
 import 'package:vnote_app/services/auth/auth_services.dart';
+import 'package:vnote_app/services/auth/bloc/auth_bloc.dart';
+import 'package:vnote_app/services/auth/bloc/auth_event.dart';
 import 'package:vnote_app/services/cloud/cloud_note.dart';
 import 'package:vnote_app/services/cloud/firebase_cloud-storage.dart';
 import 'package:vnote_app/utilities/dialogs/logout_dialog.dart';
@@ -38,16 +41,13 @@ class _NoteViewState extends State<NoteView> {
           ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
-              final navigator = Navigator.of(context);
               switch (value) {
                 case MenuAction.logOut:
                   final shouldLogOut = await showLogOutDialog(context);
+
                   if (shouldLogOut) {
-                    await AuthService.firebase().logOut();
-                    navigator.pushNamedAndRemoveUntil(
-                      loginRoute,
-                      (_) => false,
-                    );
+                    // ignore: use_build_context_synchronously
+                    context.read<AuthBloc>().add(const AuthEventLogOut());
                   }
                   break;
               }
@@ -84,9 +84,9 @@ class _NoteViewState extends State<NoteView> {
                   },
                 );
               }
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),
