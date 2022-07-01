@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:vnote_app/services/cloud/cloud_storage_constant.dart';
 
 @immutable
 class CloudNote {
@@ -12,5 +14,8 @@ class CloudNote {
     required this.text,
   });
 
-  CloudNote.fro
+  CloudNote.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
+      : documentId = snapshot.id,
+        ownerUserId = snapshot.data()[ownerUserIdFieldName],
+        text = snapshot.data()[textFieldName] as String;
 }
