@@ -4,6 +4,7 @@ import 'package:vnote_app/constants/routes.dart';
 import 'package:vnote_app/services/auth/auth_exceptions.dart';
 import 'package:vnote_app/services/auth/bloc/auth_bloc.dart';
 import 'package:vnote_app/services/auth/bloc/auth_event.dart';
+import 'package:vnote_app/services/auth/bloc/auth_state.dart';
 import 'package:vnote_app/utilities/dialogs/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -57,36 +58,28 @@ class _LoginViewState extends State<LoginView> {
               hintText: "Password",
             ),
           ),
-          TextButton(
-            onPressed: () async {
-              final String email = _email.text;
-              final String password = _password.text;
-
-              try {
-                context.read<AuthBloc>().add(AuthEventLogIn(email, password));
-              } on UserNotFoundAuthExcepton {
-                await showErrorDialog(
-                  context,
-                  "User not found",
-                );
-              } on WrongPasswordAuthExcepton {
-                await showErrorDialog(
-                  context,
-                  "Wrong password",
-                );
-              } on NetworkRequestFaildAuthExcepton {
-                await showErrorDialog(
-                  context,
-                  "Network request failed",
-                );
-              } on GenericAuthExcepton {
-                await showErrorDialog(
-                  context,
-                  "Authentication Error",
-                );
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) async {
+              if (state is AuthStateLoggedOut) {
+                if (state.exception is UserNotFoundAuthExcepton) {
+                  await showErrorDialog(context, "User not found");
+                } else if (state.exception is WrongPasswordAuthExcepton) {
+                  await showErrorDialog(context, "Wrong credential");
+                } else if (state.exception is NetworkRequestFaildAuthExcepton) {
+                  await showErrorDialog(context, "Network requset failed");
+                } else if (state.exception is GenericAuthExcepton) {
+                  await showErrorDialog(context, "Authentication error");
+                }
               }
             },
-            child: const Text("Login"),
+            child: TextButton(
+              onPressed: () async {
+                final String email = _email.text;
+                final String password = _password.text;
+                context.read<AuthBloc>().add(AuthEventLogIn(email, password));
+              },
+              child: const Text("Login"),
+            ),
           ),
           TextButton(
             onPressed: () {
