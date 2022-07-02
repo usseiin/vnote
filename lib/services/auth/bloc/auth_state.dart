@@ -5,36 +5,67 @@ import 'package:equatable/equatable.dart';
 // State
 @immutable
 abstract class AuthState {
-  const AuthState();
+  final bool isLoading;
+  final String? loadingText;
+  const AuthState({
+    required this.isLoading,
+    this.loadingText = "Please wait a moment",
+  });
 }
 
 class AuthStateUnInitialize extends AuthState {
-  const AuthStateUnInitialize();
+  const AuthStateUnInitialize({required bool isLoading})
+      : super(isLoading: isLoading);
 }
 
 class AuthStateLoggedIn extends AuthState {
   final AuthUser user;
-  const AuthStateLoggedIn(this.user);
+  const AuthStateLoggedIn({
+    required this.user,
+    required bool isLoading,
+  }) : super(isLoading: isLoading);
 }
 
 class AuthStateNeedVerification extends AuthState {
-  const AuthStateNeedVerification();
+  const AuthStateNeedVerification({required bool isloading})
+      : super(isLoading: isloading);
 }
 
 class AuthStateRegistering extends AuthState {
   final Exception? exception;
-  const AuthStateRegistering(this.exception);
+
+  const AuthStateRegistering({
+    required this.exception,
+    required bool isLoading,
+    String? loadngText,
+  }) : super(
+          isLoading: isLoading,
+          loadingText: loadngText,
+        );
 }
 
-class AuthStateLoggedOut extends AuthState with EquatableMixin{
+class AuthStateForgetPassword extends AuthState {
   final Exception? exception;
-  final bool isLoading;
+  final bool hasSentEmail;
+
+  const AuthStateForgetPassword({
+    required this.exception,
+    required this.hasSentEmail,
+    required bool isLoading,
+  }) : super(isLoading: isLoading);
+}
+
+class AuthStateLoggedOut extends AuthState with EquatableMixin {
+  final Exception? exception;
   const AuthStateLoggedOut({
     required this.exception,
-    required this.isLoading,
-  });
-  
+    required bool isLoading,
+    String? loadingText,
+  }) : super(
+          isLoading: isLoading,
+          loadingText: loadingText,
+        );
+
   @override
-  
   List<Object?> get props => [exception, isLoading];
 }
