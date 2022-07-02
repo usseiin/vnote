@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:vnote_app/constants/routes.dart';
-import 'package:vnote_app/services/auth/auth_services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vnote_app/services/auth/bloc/auth_bloc.dart';
+import 'package:vnote_app/services/auth/bloc/auth_event.dart';
 
 class VerifyEmailView extends StatelessWidget {
   const VerifyEmailView({Key? key}) : super(key: key);
@@ -21,20 +22,19 @@ class VerifyEmailView extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              await AuthService.firebase().sendEmailVerification();
+              context.read<AuthBloc>().add(
+                    const AuthEventSendEmailVerification(),
+                  );
             },
             child: const Text(
               "Send email verification",
             ),
           ),
           TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              await AuthService.firebase().logOut();
-              navigator.pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
+            onPressed: () {
+              context.read<AuthBloc>().add(
+                    const AuthEventLogOut(),
+                  );
             },
             child: const Text(
               "Restart",
