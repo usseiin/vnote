@@ -37,7 +37,8 @@ class _LoginViewState extends State<LoginView> {
       listener: (context, state) async {
         if (state is AuthStateLoggedOut) {
           if (state.exception is UserNotFoundAuthExcepton) {
-            await showErrorDialog(context, "User not found");
+            await showErrorDialog(
+                context, "Cannot find a user with the enter credentials");
           } else if (state.exception is WrongPasswordAuthExcepton) {
             await showErrorDialog(context, "Wrong credential");
           } else if (state.exception is NetworkRequestFaildAuthExcepton) {
@@ -51,45 +52,61 @@ class _LoginViewState extends State<LoginView> {
         appBar: AppBar(
           title: const Text("Login"),
         ),
-        body: Column(
-          children: [
-            TextField(
-              autocorrect: false,
-              enableSuggestions: false,
-              controller: _email,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: "Email",
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                  "Please log into your account in order to interact with and create note"),
+              TextField(
+                autocorrect: false,
+                enableSuggestions: false,
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  hintText: "Email",
+                ),
               ),
-            ),
-            TextField(
-              autocorrect: false,
-              enableSuggestions: false,
-              controller: _password,
-              obscureText: true,
-              decoration: const InputDecoration(
-                hintText: "Password",
+              TextField(
+                autofocus: true,
+                autocorrect: false,
+                enableSuggestions: false,
+                controller: _password,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  hintText: "Password",
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                final email = _email.text;
-                final password = _password.text;
-                context.read<AuthBloc>().add(AuthEventLogIn(email, password));
-              },
-              child: const Text("Login"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(
-                      const AuthEventShouldRegister(),
-                    );
-              },
-              child: const Text(
-                "Don't have an account? Signup here",
+              TextButton(
+                onPressed: () {
+                  final email = _email.text;
+                  final password = _password.text;
+                  context.read<AuthBloc>().add(AuthEventLogIn(email, password));
+                },
+                child: const Text("Login"),
               ),
-            )
-          ],
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        const AuthEventForgetPassword(),
+                      );
+                },
+                child: const Text(
+                  "I forget my password",
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        const AuthEventShouldRegister(),
+                      );
+                },
+                child: const Text(
+                  "Don't have an account? Signup here",
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

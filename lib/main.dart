@@ -8,6 +8,7 @@ import 'package:vnote_app/services/auth/bloc/auth_state.dart';
 import 'package:vnote_app/services/auth/firebase_auth_provider.dart';
 import 'package:vnote_app/views/login_view.dart';
 import 'package:vnote_app/views/notes/create_update_note_view.dart';
+import 'package:vnote_app/views/forget_password_view.dart';
 import 'package:vnote_app/views/notes/notes_view.dart';
 import 'package:vnote_app/views/register_view.dart';
 import 'package:vnote_app/views/verify_email_view.dart';
@@ -57,6 +58,8 @@ class HomePage extends StatelessWidget {
           return const LoginView();
         } else if (state is AuthStateRegistering) {
           return const RegisterView();
+        } else if (state is AuthStateForgetPassword) {
+          return const ForgetPasswordView();
         } else {
           return const Scaffold(
             body: Center(
