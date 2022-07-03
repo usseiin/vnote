@@ -59,6 +59,7 @@ class _LoginViewState extends State<LoginView> {
               const Text(
                   "Please log into your account in order to interact with and create note"),
               TextField(
+                autofocus: true,
                 autocorrect: false,
                 enableSuggestions: false,
                 controller: _email,
